@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const { resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,36 +25,26 @@ const ForgotPassword = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
+          <div className="rounded-md shadow-sm space-y-4">
             <Input
               type="email"
-              required
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
           <div>
-            <Button
-              type="submit"
-              className="w-full"
-            >
+            <Button type="submit" className="w-full">
               Send reset link
             </Button>
           </div>
         </form>
-
         <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Remember your password?{' '}
-            <Link
-              to="/login"
-              className="font-medium text-primary hover:text-primary/80"
-            >
-              Sign in
-            </Link>
-          </p>
+          <Link to="/login" className="text-primary hover:text-primary/90">
+            Back to login
+          </Link>
         </div>
       </div>
     </div>
