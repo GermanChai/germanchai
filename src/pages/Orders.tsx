@@ -2,11 +2,33 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Orders = () => {
-  const { data: orders, isLoading } = useQuery({
-    queryKey: ['orders'],
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please login to view your orders",
+      });
+    }
+  }, [user, navigate, toast]);
+
+  const { data: orders, isLoading, error } = useQuery({
+    queryKey: ['orders', user?.id],
     queryFn: async () => {
+      if (!user) throw new Error('Authentication required');
+      
       const { data: orders, error } = await supabase
         .from('orders')
         .select(`
@@ -18,10 +40,31 @@ const Orders = () => {
         `)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
       return orders;
     },
+    enabled: !!user, // Only run query if user is authenticated
   });
+
+  if (!user) {
+    return null; // Don't render anything while redirecting
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Your Orders</h1>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <p>Failed to load orders. Please try again later.</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
