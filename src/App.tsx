@@ -19,7 +19,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import React from 'react';
 
-// Create a new QueryClient instance outside of the component
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -31,40 +30,38 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AuthProvider>
-            <CartProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <Routes>
-                  <Route path="/splash" element={<SplashScreen />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  
-                  <Route path="/" element={<ProtectedRoute />}>
-                    <Route index element={<Menu />} />
-                    <Route path="item/:id" element={<ItemDetail />} />
-                    <Route path="cart" element={<Cart />} />
-                    <Route path="orders" element={<Orders />} />
-                    <Route path="profile" element={<Profile />} />
-                  </Route>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <CartProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/splash" element={<SplashScreen />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                
+                <Route path="/" element={<ProtectedRoute />}>
+                  <Route index element={<Menu />} />
+                  <Route path="item/:id" element={<ItemDetail />} />
+                  <Route path="cart" element={<Cart />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="profile" element={<Profile />} />
+                </Route>
 
-                  <Route path="/admin" element={<AdminRoute />}>
-                    <Route index element={<AdminDashboard />} />
-                  </Route>
+                <Route path="/admin" element={<AdminRoute />}>
+                  <Route index element={<AdminDashboard />} />
+                </Route>
 
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </TooltipProvider>
-            </CartProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </React.StrictMode>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </TooltipProvider>
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 
