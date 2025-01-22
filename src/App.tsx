@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import SplashScreen from "./pages/SplashScreen";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Menu from "./pages/Menu";
@@ -44,6 +45,7 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/splash" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 

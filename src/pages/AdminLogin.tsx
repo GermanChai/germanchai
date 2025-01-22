@@ -1,19 +1,26 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Coffee } from 'lucide-react';
+import { Coffee, ArrowLeft } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 
-const Login = () => {
+const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, user } = useAuth();
+  const { login, user, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Redirect if already logged in
-  if (user) {
+  // Redirect if already logged in as admin
+  if (user && isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  // Redirect normal users to home
+  if (user && !isAdmin) {
     return <Navigate to="/" replace />;
   }
 
@@ -22,6 +29,13 @@ const Login = () => {
     setIsLoading(true);
     try {
       await login(email, password);
+      if (email !== 'admin@restaurant.com') {
+        toast({
+          variant: "destructive",
+          title: "Access Denied",
+          description: "This login is reserved for administrators only.",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -33,10 +47,10 @@ const Login = () => {
         <div className="text-center">
           <Coffee className="mx-auto h-12 w-12 text-primary" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            German Chai Wala
+            Admin Login
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Sign in to your account
+            Sign in to access admin dashboard
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -69,51 +83,29 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-primary hover:text-primary/80"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-
           <div className="space-y-4">
             <Button
               type="submit"
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? 'Signing in...' : 'Sign in as Admin'}
             </Button>
 
             <Button
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => navigate('/admin-login')}
+              onClick={() => navigate('/login')}
             >
-              Admin Login
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to User Login
             </Button>
           </div>
         </form>
-
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link
-              to="/signup"
-              className="font-medium text-primary hover:text-primary/80"
-            >
-              Sign up
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default AdminLogin;
