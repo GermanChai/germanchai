@@ -35,6 +35,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Clear cart data from localStorage on auth state change
+      if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
+        localStorage.removeItem('cart');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -49,7 +54,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      navigate('/');
+      // Clear cart data when logging in
+      localStorage.removeItem('cart');
+
+      // Navigate based on user role
+      if (email === 'admin@restaurant.com') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+      
       toast({
         title: "Success",
         description: "Logged in successfully",

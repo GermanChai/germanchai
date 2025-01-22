@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import BottomNav from './BottomNav';
 
 const ProtectedRoute = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -11,6 +11,11 @@ const ProtectedRoute = () => {
 
   if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  // Redirect admin users to admin dashboard
+  if (isAdmin) {
+    return <Navigate to="/admin" />;
   }
 
   return (
