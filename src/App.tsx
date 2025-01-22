@@ -16,6 +16,7 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminOrders from "./components/AdminOrders";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import React from 'react';
@@ -59,6 +60,7 @@ const App: React.FC = () => {
 
                 <Route path="/admin" element={<AdminRoute />}>
                   <Route index element={<AdminDashboard />} />
+                  <Route path="orders" element={<AdminOrders />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />

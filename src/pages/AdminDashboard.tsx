@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { Loader2, Plus, Trash2, DollarSign, Package } from "lucide-react";
+import AdminBottomNav from "@/components/AdminBottomNav";
+import AdminOrders from "@/components/AdminOrders";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -39,7 +41,7 @@ const AdminDashboard = () => {
     },
   });
 
-  // Fetch orders with order items and menu items
+  // Fetch orders for stats
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['admin-orders'],
     queryFn: async () => {
@@ -130,7 +132,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pb-24">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
       
       {/* Stats Section */}
@@ -230,38 +232,11 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="overflow-hidden border rounded-lg bg-white shadow-sm">
-        <h2 className="text-xl font-semibold p-4 border-b">Recent Orders</h2>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders?.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-mono">{order.id.slice(0, 8)}</TableCell>
-                  <TableCell>
-                    {order.order_items.map((item: any) => (
-                      <div key={item.id}>
-                        {item.quantity}x {item.menu_items.name}
-                      </div>
-                    ))}
-                  </TableCell>
-                  <TableCell>${order.total_amount.toFixed(2)}</TableCell>
-                  <TableCell className="capitalize">{order.status}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      {/* Orders Section */}
+      <AdminOrders />
+
+      {/* Bottom Navigation */}
+      <AdminBottomNav />
     </div>
   );
 };
