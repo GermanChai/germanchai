@@ -1,9 +1,266 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useState } from "react";
+import { Loader2, Plus, Trash2, DollarSign, Package } from "lucide-react";
+
 const AdminDashboard = () => {
+  const { toast } = useToast();
+  const [newItem, setNewItem] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    image_url: "",
+  });
+
+  // Fetch menu items
+  const { data: menuItems, isLoading: menuLoading, refetch: refetchMenu } = useQuery({
+    queryKey: ['admin-menu-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('menu_items')
+        .select('*')
+        .order('category');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch orders with order items and menu items
+  const { data: orders, isLoading: ordersLoading } = useQuery({
+    queryKey: ['admin-orders'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          order_items (
+            *,
+            menu_items (*)
+          )
+        `)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleAddItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase
+        .from('menu_items')
+        .insert([{
+          ...newItem,
+          price: parseFloat(newItem.price),
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Menu item added successfully",
+      });
+      
+      setNewItem({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        image_url: "",
+      });
+      
+      refetchMenu();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('menu_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Menu item deleted successfully",
+      });
+      
+      refetchMenu();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
+  // Calculate total earnings
+  const totalEarnings = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+
+  if (menuLoading || ordersLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="p-4 border rounded-lg shadow-sm">
-        <p className="text-gray-600">Admin features coming soon.</p>
+      
+      {/* Stats Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="p-4 border rounded-lg bg-white shadow-sm">
+          <div className="flex items-center gap-2 text-primary">
+            <DollarSign className="h-5 w-5" />
+            <h2 className="font-semibold">Total Earnings</h2>
+          </div>
+          <p className="text-2xl font-bold mt-2">${totalEarnings.toFixed(2)}</p>
+        </div>
+        <div className="p-4 border rounded-lg bg-white shadow-sm">
+          <div className="flex items-center gap-2 text-primary">
+            <Package className="h-5 w-5" />
+            <h2 className="font-semibold">Total Orders</h2>
+          </div>
+          <p className="text-2xl font-bold mt-2">{orders?.length || 0}</p>
+        </div>
+      </div>
+
+      {/* Add Menu Item Form */}
+      <div className="mb-8 p-4 border rounded-lg bg-white shadow-sm">
+        <h2 className="text-xl font-semibold mb-4">Add Menu Item</h2>
+        <form onSubmit={handleAddItem} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              placeholder="Name"
+              value={newItem.name}
+              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="Category"
+              value={newItem.category}
+              onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="Price"
+              type="number"
+              step="0.01"
+              value={newItem.price}
+              onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="Image URL"
+              value={newItem.image_url}
+              onChange={(e) => setNewItem({ ...newItem, image_url: e.target.value })}
+            />
+          </div>
+          <Textarea
+            placeholder="Description"
+            value={newItem.description}
+            onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+            required
+          />
+          <Button type="submit" className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </Button>
+        </form>
+      </div>
+
+      {/* Menu Items Table */}
+      <div className="mb-8 overflow-hidden border rounded-lg bg-white shadow-sm">
+        <h2 className="text-xl font-semibold p-4 border-b">Menu Items</h2>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {menuItems?.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.category}</TableCell>
+                  <TableCell>${item.price.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Orders Table */}
+      <div className="overflow-hidden border rounded-lg bg-white shadow-sm">
+        <h2 className="text-xl font-semibold p-4 border-b">Recent Orders</h2>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order ID</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Total Amount</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders?.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell className="font-mono">{order.id.slice(0, 8)}</TableCell>
+                  <TableCell>
+                    {order.order_items.map((item: any) => (
+                      <div key={item.id}>
+                        {item.quantity}x {item.menu_items.name}
+                      </div>
+                    ))}
+                  </TableCell>
+                  <TableCell>${order.total_amount.toFixed(2)}</TableCell>
+                  <TableCell className="capitalize">{order.status}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
