@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 
 const AdminBottomNav = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { logout } = useAuth();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -37,7 +37,7 @@ const AdminBottomNav = () => {
         <Button
           variant="ghost"
           className="flex flex-col items-center text-gray-500 hover:text-primary"
-          onClick={() => signOut()}
+          onClick={() => logout()}
         >
           <LogOut size={24} />
           <span className="text-xs mt-1">Logout</span>
