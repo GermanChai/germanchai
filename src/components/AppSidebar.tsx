@@ -1,4 +1,4 @@
-import { Home, ShoppingCart, ClipboardList, User, Menu as MenuIcon } from 'lucide-react';
+import { Home, ShoppingCart, ClipboardList, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -21,12 +21,28 @@ const AppSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
+    <Sidebar defaultCollapsed>
+      <SidebarHeader className="border-b p-4">
         <div className="flex items-center justify-between">
-          <SidebarTrigger>
-            <MenuIcon className="h-6 w-6" />
+          <SidebarTrigger className="hover:bg-accent rounded-md p-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+            >
+              <line x1="4" x2="20" y1="12" y2="12" />
+              <line x1="4" x2="20" y1="6" y2="6" />
+              <line x1="4" x2="20" y1="18" y2="18" />
+            </svg>
           </SidebarTrigger>
+          <span className="text-lg font-semibold ml-2">Restaurant App</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -38,7 +54,7 @@ const AppSidebar = () => {
                 isActive={location.pathname === item.path}
                 tooltip={item.label}
               >
-                <Link to={item.path} className="flex items-center gap-2">
+                <Link to={item.path} className="flex items-center gap-2 p-2">
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
                 </Link>
