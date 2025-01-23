@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Table,
   TableBody,
@@ -13,9 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Loader2, Plus, Trash2, DollarSign, Package } from "lucide-react";
+import { Loader2, Plus, Trash2, DollarSign, Package, Upload } from "lucide-react";
 import AdminBottomNav from "@/components/AdminBottomNav";
 import AdminOrders from "@/components/AdminOrders";
+import { Label } from "@/components/ui/label";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -24,8 +25,9 @@ const AdminDashboard = () => {
     description: "",
     price: "",
     category: "",
-    image_url: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch menu items
   const { data: menuItems, isLoading: menuLoading, refetch: refetchMenu } = useQuery({
@@ -61,14 +63,47 @@ const AdminDashboard = () => {
     },
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('menu-images')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from('menu-images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsUploading(true);
     try {
+      let imageUrl = null;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
       const { error } = await supabase
         .from('menu_items')
         .insert([{
           ...newItem,
           price: parseFloat(newItem.price),
+          image_url: imageUrl,
         }]);
 
       if (error) throw error;
@@ -83,8 +118,11 @@ const AdminDashboard = () => {
         description: "",
         price: "",
         category: "",
-        image_url: "",
       });
+      setImageFile(null);
+      if (e.target instanceof HTMLFormElement) {
+        e.target.reset();
+      }
       
       refetchMenu();
     } catch (error: any) {
@@ -93,6 +131,8 @@ const AdminDashboard = () => {
         title: "Error",
         description: error.message,
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -112,6 +152,7 @@ const AdminDashboard = () => {
       
       refetchMenu();
     } catch (error: any) {
+      console.error('Delete error:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -178,11 +219,16 @@ const AdminDashboard = () => {
               onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
               required
             />
-            <Input
-              placeholder="Image URL"
-              value={newItem.image_url}
-              onChange={(e) => setNewItem({ ...newItem, image_url: e.target.value })}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="image">Menu Item Image</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="cursor-pointer"
+              />
+            </div>
           </div>
           <Textarea
             placeholder="Description"
@@ -190,9 +236,18 @@ const AdminDashboard = () => {
             onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
             required
           />
-          <Button type="submit" className="w-full">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Item
+          <Button type="submit" className="w-full" disabled={isUploading}>
+            {isUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Item
+              </>
+            )}
           </Button>
         </form>
       </div>
