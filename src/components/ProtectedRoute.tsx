@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import BottomNav from './BottomNav';
+import AppSidebar from './AppSidebar';
+import { SidebarProvider } from './ui/sidebar';
 
 const ProtectedRoute = () => {
   const { user, loading, isAdmin } = useAuth();
@@ -13,16 +14,19 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" />;
   }
 
-  // Redirect admin users to admin dashboard
   if (isAdmin) {
     return <Navigate to="/admin" />;
   }
 
   return (
-    <div className="pb-16">
-      <Outlet />
-      <BottomNav />
-    </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
