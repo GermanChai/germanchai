@@ -40,7 +40,7 @@ const Menu = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-semibold">DELIVER TO</h2>
@@ -89,7 +89,7 @@ const Menu = () => {
               <h3 className="text-lg font-semibold">{item.name}</h3>
               <p className="text-gray-600 text-sm mt-1">{item.description}</p>
               <div className="flex justify-between items-center mt-4">
-                <span className="text-lg font-bold">₹{(item.price).toFixed(2)}</span>
+                <span className="text-lg font-bold">₹{item.price.toFixed(2)}</span>
                 <Button
                   onClick={() => addItem(item)}
                   disabled={!item.available}

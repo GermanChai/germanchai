@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AppSidebar from './AppSidebar';
-import { SidebarProvider } from './ui/sidebar';
 
 const ProtectedRoute = () => {
   const { user, loading, isAdmin } = useAuth();
@@ -19,14 +18,14 @@ const ProtectedRoute = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <main className="flex-1">
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <AppSidebar />
+      <main className="flex-1 overflow-y-auto">
+        <div className="container mx-auto px-4">
           <Outlet />
-        </main>
-      </div>
-    </SidebarProvider>
+        </div>
+      </main>
+    </div>
   );
 };
 

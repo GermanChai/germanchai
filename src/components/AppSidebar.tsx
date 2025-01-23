@@ -23,7 +23,7 @@ const AppSidebar = () => {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <Sidebar>
+      <Sidebar className="border-r">
         <SidebarHeader className="border-b p-4">
           <div className="flex items-center justify-between">
             <SidebarTrigger className="hover:bg-accent rounded-md p-2">
