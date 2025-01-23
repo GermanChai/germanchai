@@ -47,12 +47,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
+
+      if (!data.user) {
+        throw new Error('No user data returned');
+      }
 
       // Clear cart data when logging in
       localStorage.removeItem('cart');
@@ -69,10 +75,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Logged in successfully",
       });
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to login",
+        description: error.message || "Invalid login credentials",
       });
       throw error;
     }
@@ -93,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       navigate('/login');
     } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -114,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Logged out successfully",
       });
     } catch (error: any) {
+      console.error('Logout error:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -132,6 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Password reset link sent to your email",
       });
     } catch (error: any) {
+      console.error('Reset password error:', error);
       toast({
         variant: "destructive",
         title: "Error",
