@@ -16,18 +16,32 @@ const Cart = () => {
     try {
       if (!user) throw new Error("You must be logged in to checkout");
       
+      // First, get user profile data
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name, phone, address')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Create the order with customer details
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
           total_amount: total,
-          status: 'pending'
+          status: 'pending',
+          customer_name: profileData?.full_name,
+          customer_phone: profileData?.phone,
+          customer_address: profileData?.address
         })
         .select()
         .single();
 
       if (orderError) throw orderError;
 
+      // Create order items
       const orderItems = items.map(item => ({
         order_id: order.id,
         menu_item_id: item.id,
@@ -84,7 +98,7 @@ const Cart = () => {
               )}
               <div>
                 <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-600">${item.price.toFixed(2)} each</p>
+                <p className="text-sm text-gray-600">₹{item.price.toFixed(2)} each</p>
               </div>
             </div>
             
@@ -121,7 +135,7 @@ const Cart = () => {
       <div className="mt-8 p-4 bg-white rounded-lg shadow">
         <div className="flex justify-between items-center mb-4">
           <span className="font-semibold">Total:</span>
-          <span className="text-xl font-bold">${total.toFixed(2)}</span>
+          <span className="text-xl font-bold">₹{total.toFixed(2)}</span>
         </div>
         <div className="flex justify-end space-x-4">
           <Button variant="outline" onClick={clearCart}>
