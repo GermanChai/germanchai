@@ -1,9 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import AdminBottomNav from "./AdminBottomNav";
-import { 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -15,7 +20,6 @@ import { Loader2, Phone, MapPin, User } from "lucide-react";
 
 const AdminOrders = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin-orders'],
@@ -25,41 +29,42 @@ const AdminOrders = () => {
         .select(`
           *,
           order_items (
-            *,
-            menu_items (*)
+            quantity,
+            price_at_time,
+            menu_item_id,
+            menu_items (
+              name
+            )
           )
         `)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
   });
 
-  const markDelivered = useMutation({
-    mutationFn: async (orderId: string) => {
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
       const { error } = await supabase
         .from('orders')
-        .update({ status: 'delivered' })
+        .update({ status: newStatus })
         .eq('id', orderId);
 
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+
       toast({
-        title: "Success",
-        description: "Order marked as delivered",
+        title: "Status updated",
+        description: `Order status has been updated to ${newStatus}`,
       });
-    },
-    onError: (error: Error) => {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
-    },
-  });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -70,77 +75,76 @@ const AdminOrders = () => {
   }
 
   return (
-    <>
-      <div className="overflow-hidden border rounded-lg bg-white shadow-sm mb-16">
-        <h2 className="text-xl font-semibold p-4 border-b">Recent Orders</h2>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Customer Details</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Orders</h1>
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Order Items</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Total Amount</TableHead>
+              <TableHead>Customer Details</TableHead>
+              <TableHead>Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders?.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell className="font-medium">
+                  {order.order_items?.map((item: any) => (
+                    <div key={item.id} className="mb-1">
+                      {item.quantity}x {item.menu_items?.name}
+                    </div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  <Select
+                    defaultValue={order.status}
+                    onValueChange={(value) => handleStatusChange(order.id, value)}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="preparing">Preparing</SelectItem>
+                      <SelectItem value="ready">Ready</SelectItem>
+                      <SelectItem value="delivered">Delivered</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
+                <TableCell>
+                  {order.customer_name && (
+                    <div className="flex items-center gap-1 text-sm">
+                      <User className="h-4 w-4" />
+                      {order.customer_name}
+                    </div>
+                  )}
+                  {order.customer_phone && (
+                    <div className="flex items-center gap-1 text-sm mt-1">
+                      <Phone className="h-4 w-4" />
+                      {order.customer_phone}
+                    </div>
+                  )}
+                  {order.customer_address && (
+                    <div className="flex items-center gap-1 text-sm mt-1">
+                      <MapPin className="h-4 w-4" />
+                      {order.customer_address}
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {new Date(order.created_at).toLocaleDateString()}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders?.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-mono">{order.id.slice(0, 8)}</TableCell>
-                  <TableCell>
-                    {order.order_items.map((item: any) => (
-                      <div key={item.id}>
-                        {item.quantity}x {item.menu_items.name}
-                      </div>
-                    ))}
-                  </TableCell>
-                  <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
-                  <TableCell>
-                    {order.customer_name && (
-                      <div className="flex items-center gap-1 text-sm">
-                        <User className="h-4 w-4" />
-                        {order.customer_name}
-                      </div>
-                    )}
-                    {order.customer_phone && (
-                      <div className="flex items-center gap-1 text-sm mt-1">
-                        <Phone className="h-4 w-4" />
-                        {order.customer_phone}
-                      </div>
-                    )}
-                    {order.customer_address && (
-                      <div className="flex items-center gap-1 text-sm mt-1">
-                        <MapPin className="h-4 w-4" />
-                        {order.customer_address}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="capitalize">{order.status}</TableCell>
-                  <TableCell>
-                    {order.status !== 'delivered' && (
-                      <Button
-                        size="sm"
-                        onClick={() => markDelivered.mutate(order.id)}
-                        disabled={markDelivered.isPending}
-                      >
-                        {markDelivered.isPending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          'Mark Delivered'
-                        )}
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-      <AdminBottomNav />
-    </>
+    </div>
   );
 };
 
