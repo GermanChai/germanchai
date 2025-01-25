@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Phone, MapPin } from "lucide-react";
+import { Loader2, Phone, MapPin, User } from "lucide-react";
 
 const AdminOrders = () => {
   const { toast } = useToast();
@@ -98,8 +98,14 @@ const AdminOrders = () => {
                   </TableCell>
                   <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
                   <TableCell>
-                    {order.customer_phone && (
+                    {order.customer_name && (
                       <div className="flex items-center gap-1 text-sm">
+                        <User className="h-4 w-4" />
+                        {order.customer_name}
+                      </div>
+                    )}
+                    {order.customer_phone && (
+                      <div className="flex items-center gap-1 text-sm mt-1">
                         <Phone className="h-4 w-4" />
                         {order.customer_phone}
                       </div>
