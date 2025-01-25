@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, Phone, MapPin } from "lucide-react";
 
 const AdminOrders = () => {
   const { toast } = useToast();
@@ -80,6 +80,7 @@ const AdminOrders = () => {
                 <TableHead>Order ID</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Total Amount</TableHead>
+                <TableHead>Customer Details</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -95,7 +96,21 @@ const AdminOrders = () => {
                       </div>
                     ))}
                   </TableCell>
-                  <TableCell>${order.total_amount.toFixed(2)}</TableCell>
+                  <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
+                  <TableCell>
+                    {order.customer_phone && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Phone className="h-4 w-4" />
+                        {order.customer_phone}
+                      </div>
+                    )}
+                    {order.customer_address && (
+                      <div className="flex items-center gap-1 text-sm mt-1">
+                        <MapPin className="h-4 w-4" />
+                        {order.customer_address}
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="capitalize">{order.status}</TableCell>
                   <TableCell>
                     {order.status !== 'delivered' && (
