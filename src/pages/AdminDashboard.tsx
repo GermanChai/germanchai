@@ -13,10 +13,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Loader2, Plus, Trash2, DollarSign, Package, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, IndianRupee, Package, Upload } from "lucide-react";
 import AdminBottomNav from "@/components/AdminBottomNav";
 import AdminOrders from "@/components/AdminOrders";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -28,6 +36,7 @@ const AdminDashboard = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
 
   // Fetch menu items
   const { data: menuItems, isLoading: menuLoading, refetch: refetchMenu } = useQuery({
@@ -161,6 +170,25 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleClearData = async () => {
+    try {
+      const { data, error } = await supabase.rpc('clear_admin_data');
+      
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Admin data cleared successfully",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
   // Calculate total earnings
   const totalEarnings = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
 
@@ -174,16 +202,43 @@ const AdminDashboard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="destructive">
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear Data
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Clear Admin Data</DialogTitle>
+              <DialogDescription>
+                This action will clear all orders and order items. This cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Button 
+                variant="destructive" 
+                className="w-full"
+                onClick={handleClearData}
+              >
+                Confirm Clear Data
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
       
       {/* Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div className="p-4 border rounded-lg bg-white shadow-sm">
           <div className="flex items-center gap-2 text-primary">
-            <DollarSign className="h-5 w-5" />
+            <IndianRupee className="h-5 w-5" />
             <h2 className="font-semibold">Total Earnings</h2>
           </div>
-          <p className="text-2xl font-bold mt-2">${totalEarnings.toFixed(2)}</p>
+          <p className="text-2xl font-bold mt-2">₹{totalEarnings.toFixed(2)}</p>
         </div>
         <div className="p-4 border rounded-lg bg-white shadow-sm">
           <div className="flex items-center gap-2 text-primary">
@@ -270,7 +325,7 @@ const AdminDashboard = () => {
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.category}</TableCell>
-                  <TableCell>${item.price.toFixed(2)}</TableCell>
+                  <TableCell>₹{item.price.toFixed(2)}</TableCell>
                   <TableCell>
                     <Button
                       variant="destructive"

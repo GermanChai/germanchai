@@ -14,7 +14,15 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     try {
-      if (!user) throw new Error("You must be logged in to checkout");
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to checkout",
+        });
+        navigate('/login');
+        return;
+      }
       
       // First, get user profile data
       const { data: profileData, error: profileError } = await supabase
@@ -25,16 +33,26 @@ const Cart = () => {
 
       if (profileError) throw profileError;
 
-      // Create the order with customer details
+      if (!profileData?.full_name || !profileData?.phone || !profileData?.address) {
+        toast({
+          variant: "destructive",
+          title: "Profile Incomplete",
+          description: "Please complete your profile before placing an order",
+        });
+        navigate('/profile');
+        return;
+      }
+
+      // Create the order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
           total_amount: total,
           status: 'pending',
-          customer_name: profileData?.full_name,
-          customer_phone: profileData?.phone,
-          customer_address: profileData?.address
+          customer_name: profileData.full_name,
+          customer_phone: profileData.phone,
+          customer_address: profileData.address
         })
         .select()
         .single();
