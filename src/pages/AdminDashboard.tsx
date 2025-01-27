@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Loader2, Plus, Trash2, IndianRupee, Package, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, IndianRupee, Package } from "lucide-react";
 import AdminBottomNav from "@/components/AdminBottomNav";
 import AdminOrders from "@/components/AdminOrders";
 import { Label } from "@/components/ui/label";
@@ -36,7 +36,6 @@ const AdminDashboard = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
 
   // Fetch menu items
   const { data: menuItems, isLoading: menuLoading, refetch: refetchMenu } = useQuery({
@@ -180,6 +179,8 @@ const AdminDashboard = () => {
         title: "Success",
         description: "Admin data cleared successfully",
       });
+      // Refetch menu items and orders after clearing
+      refetchMenu();
     } catch (error: any) {
       toast({
         variant: "destructive",
