@@ -31,7 +31,10 @@ const Cart = () => {
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        throw new Error('Could not fetch profile data');
+      }
 
       if (!profileData?.full_name || !profileData?.phone || !profileData?.address) {
         toast({
@@ -57,7 +60,10 @@ const Cart = () => {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order error:', orderError);
+        throw new Error('Failed to create order');
+      }
 
       // Create order items
       const orderItems = items.map(item => ({
@@ -71,7 +77,10 @@ const Cart = () => {
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Order items error:', itemsError);
+        throw new Error('Failed to create order items');
+      }
 
       clearCart();
       toast({
@@ -80,10 +89,11 @@ const Cart = () => {
       });
       navigate('/orders');
     } catch (error: any) {
+      console.error('Checkout error:', error);
       toast({
         variant: "destructive",
         title: "Error placing order",
-        description: error.message,
+        description: error.message || 'An error occurred while placing your order',
       });
     }
   };
