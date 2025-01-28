@@ -55,7 +55,7 @@ const Menu = () => {
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p className="text-gray-600 text-sm mt-1">{item.description}</p>
                   <div className="flex justify-between items-center mt-4">
-                    <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
+                    <span className="text-lg font-bold">₹{item.price.toFixed(2)}</span>
                     <Button
                       onClick={() => addItem(item)}
                       disabled={!item.available}
