@@ -44,9 +44,7 @@ const App: React.FC = () => {
               <Toaster />
               <Sonner />
               <Routes>
-                {/* Changed the default route to show splash screen first */}
-                <Route path="/" element={<Navigate to="/splash" replace />} />
-                <Route path="/splash" element={<SplashScreen />} />
+                <Route path="/" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/signup" element={<Signup />} />
@@ -65,7 +63,7 @@ const App: React.FC = () => {
                   <Route path="orders" element={<AdminOrders />} />
                 </Route>
 
-                <Route path="*" element={<Navigate to="/splash" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </TooltipProvider>
           </CartProvider>
