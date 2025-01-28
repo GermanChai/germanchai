@@ -1,13 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -16,59 +10,76 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Phone, MapPin, User } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { Link } from "react-router-dom";
 
 const AdminOrders = () => {
-  const { toast } = useToast();
-
-  const { data: orders, isLoading } = useQuery({
-    queryKey: ['admin-orders'],
+  const { data: orders, isLoading, error } = useQuery({
+    queryKey: ["admin-orders"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
+      const { data: orders, error } = await supabase
+        .from("orders")
+        .select(
+          `
           *,
           order_items (
-            quantity,
-            price_at_time,
-            menu_item_id,
-            menu_items (
-              name
-            )
+            *,
+            menu_items (*)
           )
-        `)
-        .order('created_at', { ascending: false });
+        `
+        )
+        .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error('Orders fetch error:', error);
-        throw error;
-      }
-      return data;
+      if (error) throw error;
+      return orders;
     },
   });
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", orderId);
 
-      if (error) throw error;
-
-      toast({
-        title: "Status updated",
-        description: `Order status has been updated to ${newStatus}`,
-      });
-    } catch (error: any) {
-      console.error('Status update error:', error);
+    if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Error updating order status",
         description: error.message,
+      });
+    } else {
+      toast({
+        title: "Order status updated",
+        description: `Order ${orderId} status changed to ${newStatus}`,
       });
     }
   };
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <p>Failed to load orders. Please try again later.</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -79,69 +90,81 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24">
-      <h1 className="text-2xl font-bold mb-6">Orders</h1>
+    <div className="container mx-auto px-4 py-8">
+      <NavigationMenu className="mb-6">
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link to="/admin/dashboard">
+              <NavigationMenuLink className="px-4 py-2 hover:bg-accent rounded-md">
+                Dashboard
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link to="/admin/orders">
+              <NavigationMenuLink className="px-4 py-2 hover:bg-accent rounded-md">
+                Orders
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+
+      <h1 className="text-2xl font-bold mb-6">Orders Management</h1>
       <div className="bg-white rounded-lg shadow overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order Items</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Order ID</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Items</TableHead>
               <TableHead>Total Amount</TableHead>
-              <TableHead>Customer Details</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orders?.map((order) => (
               <TableRow key={order.id}>
-                <TableCell className="font-medium">
-                  {order.order_items?.map((item: any, index: number) => (
-                    <div key={`${order.id}-${index}`} className="mb-1">
-                      {item.quantity}x {item.menu_items?.name}
-                    </div>
-                  ))}
+                <TableCell className="font-medium">{order.id}</TableCell>
+                <TableCell>
+                  <div>
+                    <p className="font-medium">{order.customer_name}</p>
+                    <p className="text-sm text-gray-500">{order.customer_phone}</p>
+                    <p className="text-sm text-gray-500">
+                      {order.customer_address}
+                    </p>
+                  </div>
                 </TableCell>
+                <TableCell>
+                  <ul className="list-disc list-inside">
+                    {order.order_items.map((item: any) => (
+                      <li key={item.id}>
+                        {item.quantity}x {item.menu_items.name} - ₹
+                        {item.price_at_time}
+                      </li>
+                    ))}
+                  </ul>
+                </TableCell>
+                <TableCell>₹{order.total_amount}</TableCell>
                 <TableCell>
                   <Select
                     defaultValue={order.status}
                     onValueChange={(value) => handleStatusChange(order.id, value)}
                   >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="preparing">Preparing</SelectItem>
-                      <SelectItem value="ready">Ready</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
                       <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
                 <TableCell>
-                  {order.customer_name && (
-                    <div className="flex items-center gap-1 text-sm">
-                      <User className="h-4 w-4" />
-                      {order.customer_name}
-                    </div>
-                  )}
-                  {order.customer_phone && (
-                    <div className="flex items-center gap-1 text-sm mt-1">
-                      <Phone className="h-4 w-4" />
-                      {order.customer_phone}
-                    </div>
-                  )}
-                  {order.customer_address && (
-                    <div className="flex items-center gap-1 text-sm mt-1">
-                      <MapPin className="h-4 w-4" />
-                      {order.customer_address}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {new Date(order.created_at).toLocaleDateString()}
+                  {format(new Date(order.created_at), "PPp")}
                 </TableCell>
               </TableRow>
             ))}
