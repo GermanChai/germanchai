@@ -1,24 +1,41 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Coffee } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const SplashScreen = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
+  const [hasShownSplash, setHasShownSplash] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // If user is already logged in, redirect to menu, otherwise to login
+    // Only show splash screen if we haven't shown it yet and we're at the root path
+    if (!hasShownSplash && location.pathname === '/') {
+      const timer = setTimeout(() => {
+        setHasShownSplash(true);
+        if (user) {
+          navigate('/menu');
+        } else {
+          navigate('/login');
+        }
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    } else if (location.pathname === '/' && hasShownSplash) {
+      // If we've already shown the splash screen and we're back at root, redirect immediately
       if (user) {
         navigate('/menu');
       } else {
         navigate('/login');
       }
-    }, 3000);
+    }
+  }, [navigate, user, location.pathname, hasShownSplash]);
 
-    return () => clearTimeout(timer);
-  }, [navigate, user]);
+  // Only render the splash screen if we haven't shown it yet and we're at the root path
+  if (hasShownSplash || location.pathname !== '/') {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/90 to-primary animate-fadeIn">
