@@ -24,8 +24,8 @@ import React from 'react';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
-      gcTime: 1000 * 60 * 30,
+      staleTime: 1000 * 60 * 5, // Data remains fresh for 5 minutes
+      gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
       retry: 1,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
@@ -44,13 +44,13 @@ const App: React.FC = () => {
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/" element={<SplashScreen />} />
+                <Route path="/splash" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 
-                <Route path="/menu" element={<ProtectedRoute />}>
+                <Route path="/" element={<ProtectedRoute />}>
                   <Route index element={<Menu />} />
                   <Route path="item/:id" element={<ItemDetail />} />
                   <Route path="cart" element={<Cart />} />
