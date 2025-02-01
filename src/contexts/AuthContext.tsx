@@ -23,27 +23,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Check active session and handle initial authentication state
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session error:', error);
+          setUser(null);
+          // Clear any stored session data
+          await supabase.auth.signOut();
+          navigate('/login');
+        } else {
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Clear cart data from localStorage on auth state change
-      if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        // Clear any stored data
         localStorage.removeItem('cart');
+        setUser(null);
+        navigate('/login');
+      } else if (event === 'SIGNED_IN') {
+        localStorage.removeItem('cart');
+        const email = session?.user?.email;
+        if (email === 'admin@restaurant.com') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      } else if (event === 'TOKEN_REFRESHED') {
+        // Handle successful token refresh
+        setUser(session?.user ?? null);
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -52,9 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (!data.user) {
         throw new Error('No user data returned');
@@ -62,18 +94,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Clear cart data when logging in
       localStorage.removeItem('cart');
-
-      // Navigate based on user role
-      if (email === 'admin@restaurant.com') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
       
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
+
+      // Navigation is handled by onAuthStateChange
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -115,8 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
-      setUser(null);
-      navigate('/login');
+      // Navigation and cleanup handled by onAuthStateChange
       toast({
         title: "Success",
         description: "Logged out successfully",
