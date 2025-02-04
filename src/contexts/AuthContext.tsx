@@ -55,22 +55,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setLoading(false);
       
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-        // Clear any stored data
-        localStorage.removeItem('cart');
-        setUser(null);
-        navigate('/login');
-      } else if (event === 'SIGNED_IN') {
-        localStorage.removeItem('cart');
-        const email = session?.user?.email;
-        if (email === 'admin@restaurant.com') {
-          navigate('/admin');
-        } else {
-          navigate('/');
-        }
-      } else if (event === 'TOKEN_REFRESHED') {
-        // Handle successful token refresh
-        setUser(session?.user ?? null);
+      switch (event) {
+        case 'SIGNED_OUT':
+          // Clear any stored data
+          localStorage.removeItem('cart');
+          setUser(null);
+          navigate('/login');
+          break;
+        case 'SIGNED_IN':
+          localStorage.removeItem('cart');
+          const email = session?.user?.email;
+          if (email === 'admin@restaurant.com') {
+            navigate('/admin');
+          } else {
+            navigate('/');
+          }
+          break;
+        case 'TOKEN_REFRESHED':
+          // Handle successful token refresh
+          setUser(session?.user ?? null);
+          break;
+        case 'INITIAL_SESSION':
+          // Initial session loaded
+          break;
+        default:
+          // Handle other events if needed
+          break;
       }
     });
 
