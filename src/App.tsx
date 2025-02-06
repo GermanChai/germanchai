@@ -19,7 +19,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Sonner } from "@/components/ui/sonner";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
           <TooltipProvider>
             <>
               <Toaster />
-              <Sonner />
+              <SonnerToaster />
               <Routes>
                 <Route path="/splash" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
