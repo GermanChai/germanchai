@@ -1,8 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import BottomNav from './BottomNav';
+import { ReactNode } from 'react';
 
-const ProtectedRoute = () => {
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, isAdmin } = useAuth();
 
   if (loading) {
@@ -20,7 +25,7 @@ const ProtectedRoute = () => {
 
   return (
     <div className="pb-16">
-      <Outlet />
+      {children}
       <BottomNav />
     </div>
   );
