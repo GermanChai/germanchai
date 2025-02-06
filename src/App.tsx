@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
-import SplashScreen from "./pages/SplashScreen";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import Signup from "./pages/Signup";
@@ -44,7 +43,6 @@ const App: React.FC = () => {
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/splash" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/signup" element={<Signup />} />
@@ -63,7 +61,7 @@ const App: React.FC = () => {
                   <Route path="orders" element={<AdminOrders />} />
                 </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
               </Routes>
             </TooltipProvider>
           </CartProvider>
