@@ -22,6 +22,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 function App() {
+  // Check if this is a fresh app load
+  const isFirstLoad = !sessionStorage.getItem("hasLoadedBefore");
+  
+  // If it's first load, set the flag in sessionStorage
+  if (isFirstLoad) {
+    sessionStorage.setItem("hasLoadedBefore", "true");
+  }
+
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -31,76 +39,26 @@ function App() {
               <Toaster />
               <SonnerToaster />
               <Routes>
-                <Route path="/splash" element={<SplashScreen />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/admin-login" element={<AdminLogin />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/menu"
-                  element={
-                    <ProtectedRoute>
-                      <Menu />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/item/:id"
-                  element={
-                    <ProtectedRoute>
-                      <ItemDetail />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/cart"
-                  element={
-                    <ProtectedRoute>
-                      <Cart />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/orders"
-                  element={
-                    <ProtectedRoute>
-                      <Orders />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin-dashboard"
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin-orders"
-                  element={
-                    <AdminRoute>
-                      <AdminOrders />
-                    </AdminRoute>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/splash" replace />} />
+                {/* Show splash screen only on first load */}
+                {isFirstLoad ? (
+                  <Route path="*" element={<SplashScreen />} />
+                ) : (
+                  <>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/admin-login" element={<AdminLogin />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                    <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
+                    <Route path="/item/:id" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
+                    <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                    <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                    <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                    <Route path="/admin-orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
+                    <Route path="*" element={<Navigate to="/login" replace />} />
+                  </>
+                )}
               </Routes>
             </>
           </TooltipProvider>
