@@ -1,14 +1,13 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import SplashScreen from "./pages/SplashScreen";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
+import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import ItemDetail from "./pages/ItemDetail";
 import Cart from "./pages/Cart";
@@ -18,57 +17,97 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./components/AdminOrders";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
-import React from 'react';
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Sonner } from "@/components/ui/sonner";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // Data remains fresh for 5 minutes
-      gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
-  },
-});
-
-const App: React.FC = () => {
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <>
               <Toaster />
               <Sonner />
               <Routes>
+                <Route path="/splash" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-                
-                <Route path="/" element={<ProtectedRoute />}>
-                  <Route index element={<Menu />} />
-                  <Route path="item/:id" element={<ItemDetail />} />
-                  <Route path="cart" element={<Cart />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="profile" element={<Profile />} />
-                </Route>
-
-                <Route path="/admin" element={<AdminRoute />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                </Route>
-
-                <Route path="*" element={<Navigate to="/login" replace />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/menu"
+                  element={
+                    <ProtectedRoute>
+                      <Menu />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/item/:id"
+                  element={
+                    <ProtectedRoute>
+                      <ItemDetail />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/cart"
+                  element={
+                    <ProtectedRoute>
+                      <Cart />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/orders"
+                  element={
+                    <ProtectedRoute>
+                      <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin-dashboard"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin-orders"
+                  element={
+                    <AdminRoute>
+                      <AdminOrders />
+                    </AdminRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/splash" replace />} />
               </Routes>
-            </TooltipProvider>
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+            </>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;
