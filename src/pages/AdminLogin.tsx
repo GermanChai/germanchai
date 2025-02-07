@@ -16,12 +16,12 @@ const AdminLogin = () => {
 
   // Redirect if already logged in as admin
   if (user && isAdmin) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/admin-dashboard" replace />;
   }
 
-  // Redirect normal users to home
+  // Redirect normal users to menu
   if (user && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/menu" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
