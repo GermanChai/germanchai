@@ -2,16 +2,21 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Coffee } from 'lucide-react';
 
-const SplashScreen = () => {
+interface SplashScreenProps {
+  onFinish: () => void;
+}
+
+const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      onFinish();
       navigate('/login');
-    }, 3000); // Changed from 2000 to 3000 milliseconds (3 seconds)
+    }, 3000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, onFinish]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-primary/20 to-background">

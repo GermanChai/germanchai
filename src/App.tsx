@@ -20,41 +20,10 @@ import AdminRoute from "./components/AdminRoute";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    // Get the last active timestamp
-    const lastActive = localStorage.getItem('lastActiveTimestamp');
-    const currentTime = new Date().getTime();
-    
-    // If there's no timestamp or the app was inactive for more than 5 minutes,
-    // we consider it a fresh start
-    if (!lastActive || currentTime - parseInt(lastActive) > 5 * 60 * 1000) {
-      setShowSplash(true);
-    } else {
-      setShowSplash(false);
-    }
-
-    // Update the timestamp when the app becomes active
-    const updateTimestamp = () => {
-      localStorage.setItem('lastActiveTimestamp', new Date().getTime().toString());
-    };
-
-    // Update timestamp on mount and when the window gains focus
-    updateTimestamp();
-    window.addEventListener('focus', updateTimestamp);
-
-    // Update timestamp periodically while the app is active
-    const interval = setInterval(updateTimestamp, 60 * 1000); // Every minute
-
-    return () => {
-      window.removeEventListener('focus', updateTimestamp);
-      clearInterval(interval);
-    };
-  }, []);
 
   return (
     <BrowserRouter>
@@ -66,7 +35,7 @@ function App() {
               <SonnerToaster />
               <Routes>
                 {showSplash ? (
-                  <Route path="*" element={<SplashScreen />} />
+                  <Route path="*" element={<SplashScreen onFinish={() => setShowSplash(false)} />} />
                 ) : (
                   <>
                     <Route path="/login" element={<Login />} />
