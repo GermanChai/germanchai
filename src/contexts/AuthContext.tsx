@@ -66,9 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('cart');
           const email = session?.user?.email;
           if (email === 'admin@restaurant.com') {
-            navigate('/admin');
+            navigate('/admin-dashboard');
           } else {
-            navigate('/');
+            navigate('/menu');
           }
           break;
         case 'TOKEN_REFRESHED':
