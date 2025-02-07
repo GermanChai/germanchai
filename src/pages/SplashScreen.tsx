@@ -1,23 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Coffee } from 'lucide-react';
 
-interface SplashScreenProps {
-  onFinish: () => void;
-}
-
-const SplashScreen = ({ onFinish }: SplashScreenProps) => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onFinish();
-      navigate('/login');
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [navigate, onFinish]);
-
+const SplashScreen = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-primary/20 to-background">
       <div className="animate-bounce">

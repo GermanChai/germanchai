@@ -20,12 +20,24 @@ import AdminRoute from "./components/AdminRoute";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const queryClient = new QueryClient();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -37,25 +49,19 @@ function App() {
                 <Toaster />
                 <SonnerToaster />
                 <Routes>
-                  {showSplash ? (
-                    <Route path="*" element={<SplashScreen onFinish={() => setShowSplash(false)} />} />
-                  ) : (
-                    <>
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/admin-login" element={<AdminLogin />} />
-                      <Route path="/signup" element={<Signup />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                      <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
-                      <Route path="/item/:id" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
-                      <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-                      <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-                      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                      <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                      <Route path="/admin-orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
-                      <Route path="*" element={<Navigate to="/login" replace />} />
-                    </>
-                  )}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/admin-login" element={<AdminLogin />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/" element={<Navigate to="/menu" replace />} />
+                  <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
+                  <Route path="/item/:id" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
+                  <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                  <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                  <Route path="/admin-orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
+                  <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
               </>
             </TooltipProvider>
