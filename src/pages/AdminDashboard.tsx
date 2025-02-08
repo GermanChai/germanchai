@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ const AdminDashboard = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Fetch menu items
+  // Fetch menu items with loading state
   const { data: menuItems, isLoading: menuLoading, refetch: refetchMenu } = useQuery({
     queryKey: ['admin-menu-items'],
     queryFn: async () => {
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
     },
   });
 
-  // Fetch orders for stats
+  // Fetch orders with loading state
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['admin-orders'],
     queryFn: async () => {
@@ -193,7 +194,8 @@ const AdminDashboard = () => {
   // Calculate total earnings
   const totalEarnings = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
 
-  if (menuLoading || ordersLoading) {
+  // Show loading state while initial data is being fetched
+  if (menuLoading && ordersLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
