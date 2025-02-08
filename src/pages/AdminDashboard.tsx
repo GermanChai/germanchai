@@ -1,23 +1,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useState } from "react";
-import { Loader2, Plus, Trash2, IndianRupee, Package } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import AdminBottomNav from "@/components/AdminBottomNav";
 import AdminOrders from "@/components/AdminOrders";
-import { Label } from "@/components/ui/label";
+import AdminStats from "@/components/AdminStats";
+import AdminMenuItems from "@/components/AdminMenuItems";
+import AddMenuItemForm from "@/components/AddMenuItemForm";
 import {
   Dialog,
   DialogContent,
@@ -26,16 +16,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
-  const [newItem, setNewItem] = useState({
-    name: "",
-    description: "",
-    price: "",
-    category: "",
-  });
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   // Fetch menu items with loading state
@@ -72,12 +57,6 @@ const AdminDashboard = () => {
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
   const uploadImage = async (file: File): Promise<string> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${crypto.randomUUID()}.${fileExt}`;
@@ -98,10 +77,11 @@ const AdminDashboard = () => {
     return data.publicUrl;
   };
 
-  const handleAddItem = async (e: React.FormEvent) => {
+  const handleAddItem = async (e: React.FormEvent, imageFile: File | null) => {
     e.preventDefault();
     setIsUploading(true);
     try {
+      const formData = new FormData(e.target as HTMLFormElement);
       let imageUrl = null;
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
@@ -110,8 +90,10 @@ const AdminDashboard = () => {
       const { error } = await supabase
         .from('menu_items')
         .insert([{
-          ...newItem,
-          price: parseFloat(newItem.price),
+          name: formData.get('name'),
+          description: formData.get('description'),
+          price: parseFloat(formData.get('price') as string),
+          category: formData.get('category'),
           image_url: imageUrl,
         }]);
 
@@ -122,13 +104,6 @@ const AdminDashboard = () => {
         description: "Menu item added successfully",
       });
       
-      setNewItem({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-      });
-      setImageFile(null);
       if (e.target instanceof HTMLFormElement) {
         e.target.reset();
       }
@@ -180,7 +155,6 @@ const AdminDashboard = () => {
         title: "Success",
         description: "Admin data cleared successfully",
       });
-      // Refetch menu items and orders after clearing
       refetchMenu();
     } catch (error: any) {
       toast({
@@ -234,121 +208,22 @@ const AdminDashboard = () => {
         </Dialog>
       </div>
       
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div className="p-4 border rounded-lg bg-white shadow-sm">
-          <div className="flex items-center gap-2 text-primary">
-            <IndianRupee className="h-5 w-5" />
-            <h2 className="font-semibold">Total Earnings</h2>
-          </div>
-          <p className="text-2xl font-bold mt-2">₹{totalEarnings.toFixed(2)}</p>
-        </div>
-        <div className="p-4 border rounded-lg bg-white shadow-sm">
-          <div className="flex items-center gap-2 text-primary">
-            <Package className="h-5 w-5" />
-            <h2 className="font-semibold">Total Orders</h2>
-          </div>
-          <p className="text-2xl font-bold mt-2">{orders?.length || 0}</p>
-        </div>
-      </div>
+      <AdminStats 
+        totalEarnings={totalEarnings} 
+        totalOrders={orders?.length || 0} 
+      />
+      
+      <AddMenuItemForm 
+        onSubmit={handleAddItem}
+        isUploading={isUploading}
+      />
 
-      {/* Add Menu Item Form */}
-      <div className="mb-8 p-4 border rounded-lg bg-white shadow-sm">
-        <h2 className="text-xl font-semibold mb-4">Add Menu Item</h2>
-        <form onSubmit={handleAddItem} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              placeholder="Name"
-              value={newItem.name}
-              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-              required
-            />
-            <Input
-              placeholder="Category"
-              value={newItem.category}
-              onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-              required
-            />
-            <Input
-              placeholder="Price"
-              type="number"
-              step="0.01"
-              value={newItem.price}
-              onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-              required
-            />
-            <div className="space-y-2">
-              <Label htmlFor="image">Menu Item Image</Label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="cursor-pointer"
-              />
-            </div>
-          </div>
-          <Textarea
-            placeholder="Description"
-            value={newItem.description}
-            onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-            required
-          />
-          <Button type="submit" className="w-full" disabled={isUploading}>
-            {isUploading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Item
-              </>
-            )}
-          </Button>
-        </form>
-      </div>
+      <AdminMenuItems 
+        menuItems={menuItems || []}
+        onDeleteItem={handleDeleteItem}
+      />
 
-      {/* Menu Items Table */}
-      <div className="mb-8 overflow-hidden border rounded-lg bg-white shadow-sm">
-        <h2 className="text-xl font-semibold p-4 border-b">Menu Items</h2>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {menuItems?.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>₹{item.price.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {/* Orders Section */}
       <AdminOrders />
-
-      {/* Bottom Navigation */}
       <AdminBottomNav />
     </div>
   );
