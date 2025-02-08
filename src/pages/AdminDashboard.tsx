@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import AdminBottomNav from "@/components/AdminBottomNav";
 import AdminOrders from "@/components/AdminOrders";
 import AdminStats from "@/components/AdminStats";
@@ -87,15 +88,17 @@ const AdminDashboard = () => {
         imageUrl = await uploadImage(imageFile);
       }
 
+      const menuItem = {
+        name: String(formData.get('name')),
+        description: String(formData.get('description')),
+        price: parseFloat(String(formData.get('price'))),
+        category: String(formData.get('category')),
+        image_url: imageUrl,
+      };
+
       const { error } = await supabase
         .from('menu_items')
-        .insert([{
-          name: formData.get('name'),
-          description: formData.get('description'),
-          price: parseFloat(formData.get('price') as string),
-          category: formData.get('category'),
-          image_url: imageUrl,
-        }]);
+        .insert(menuItem);
 
       if (error) throw error;
 
