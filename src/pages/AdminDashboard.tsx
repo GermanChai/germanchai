@@ -194,8 +194,8 @@ const AdminDashboard = () => {
   // Calculate total earnings
   const totalEarnings = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
 
-  // Show loading state while initial data is being fetched
-  if (menuLoading && ordersLoading) {
+  // Show loading state while any data is being fetched
+  if (menuLoading || ordersLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
