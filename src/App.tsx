@@ -1,3 +1,4 @@
+
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -7,7 +8,6 @@ import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
-import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import ItemDetail from "./pages/ItemDetail";
 import Cart from "./pages/Cart";
@@ -61,7 +61,7 @@ function App() {
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                   <Route path="/admin-orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
-                  <Route path="*" element={<Navigate to="/login" replace />} />
+                  <Route path="*" element={<Navigate to="/menu" replace />} />
                 </Routes>
               </>
             </TooltipProvider>

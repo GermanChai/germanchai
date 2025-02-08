@@ -1,3 +1,4 @@
+
 import { LayoutDashboard, ClipboardList, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,9 +16,9 @@ const AdminBottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
       <div className="flex justify-around items-center">
         <Link
-          to="/admin"
+          to="/admin-dashboard"
           className={`flex flex-col items-center ${
-            isActive('/admin') ? 'text-primary' : 'text-gray-500'
+            isActive('/admin-dashboard') ? 'text-primary' : 'text-gray-500'
           }`}
         >
           <LayoutDashboard size={24} />
@@ -25,9 +26,9 @@ const AdminBottomNav = () => {
         </Link>
         
         <Link
-          to="/admin/orders"
+          to="/admin-orders"
           className={`flex flex-col items-center ${
-            isActive('/admin/orders') ? 'text-primary' : 'text-gray-500'
+            isActive('/admin-orders') ? 'text-primary' : 'text-gray-500'
           }`}
         >
           <ClipboardList size={24} />
