@@ -1,6 +1,6 @@
 
 import { Home, Search, ShoppingCart, ClipboardList, User } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Input } from './ui/input';
 
@@ -10,6 +10,7 @@ interface BottomNavProps {
 
 const BottomNav = ({ onSearch }: BottomNavProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showSearch, setShowSearch] = useState(false);
 
   const isActive = (path: string) => {
@@ -35,6 +36,10 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
     }
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <>
       {showSearch && (
@@ -51,15 +56,15 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
       
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40 max-w-lg mx-auto">
         <div className="flex justify-around items-center">
-          <Link
-            to="/menu"
+          <button
+            onClick={() => handleNavigation('/menu')}
             className={`flex flex-col items-center ${
               isActive('/menu') ? 'text-primary' : 'text-gray-500'
             }`}
           >
             <Home size={24} />
             <span className="text-xs mt-1">Home</span>
-          </Link>
+          </button>
           
           <button
             onClick={toggleSearch}
@@ -71,35 +76,35 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
             <span className="text-xs mt-1">Search</span>
           </button>
           
-          <Link
-            to="/orders"
+          <button
+            onClick={() => handleNavigation('/orders')}
             className={`flex flex-col items-center ${
               isActive('/orders') ? 'text-primary' : 'text-gray-500'
             }`}
           >
             <ClipboardList size={24} />
             <span className="text-xs mt-1">Orders</span>
-          </Link>
+          </button>
           
-          <Link
-            to="/cart"
+          <button
+            onClick={() => handleNavigation('/cart')}
             className={`flex flex-col items-center ${
               isActive('/cart') ? 'text-primary' : 'text-gray-500'
             }`}
           >
             <ShoppingCart size={24} />
             <span className="text-xs mt-1">Cart</span>
-          </Link>
+          </button>
           
-          <Link
-            to="/profile"
+          <button
+            onClick={() => handleNavigation('/profile')}
             className={`flex flex-col items-center ${
               isActive('/profile') ? 'text-primary' : 'text-gray-500'
             }`}
           >
             <User size={24} />
             <span className="text-xs mt-1">Profile</span>
-          </Link>
+          </button>
         </div>
       </nav>
     </>
