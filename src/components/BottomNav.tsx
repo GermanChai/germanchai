@@ -27,6 +27,14 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      onSearch(e.target.value);
+    } catch (error) {
+      console.error('Error in search handler:', error);
+    }
+  };
+
   return (
     <>
       {showSearch && (
@@ -35,7 +43,7 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
             id="search-input"
             placeholder="Search menu items..."
             className="w-full"
-            onChange={(e) => onSearch(e.target.value)}
+            onChange={handleSearchChange}
             autoFocus
           />
         </div>
