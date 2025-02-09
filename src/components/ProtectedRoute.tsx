@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Redirect admin users to admin dashboard
   if (isAdmin) {
-    return <Navigate to="/admin" />;
+    return <Navigate to="/admin-dashboard" />;
   }
 
   // Pass a no-op function if search isn't needed on this route
