@@ -1,6 +1,6 @@
 
 import { Home, Search, ShoppingCart, ClipboardList, User } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Input } from './ui/input';
 
@@ -36,10 +36,6 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
     }
   };
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
   return (
     <>
       {showSearch && (
@@ -57,7 +53,7 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40 max-w-lg mx-auto">
         <div className="flex justify-around items-center">
           <button
-            onClick={() => handleNavigation('/menu')}
+            onClick={() => navigate('/menu')}
             className={`flex flex-col items-center ${
               isActive('/menu') ? 'text-primary' : 'text-gray-500'
             }`}
@@ -77,7 +73,7 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
           </button>
           
           <button
-            onClick={() => handleNavigation('/orders')}
+            onClick={() => navigate('/orders')}
             className={`flex flex-col items-center ${
               isActive('/orders') ? 'text-primary' : 'text-gray-500'
             }`}
@@ -87,7 +83,7 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
           </button>
           
           <button
-            onClick={() => handleNavigation('/cart')}
+            onClick={() => navigate('/cart')}
             className={`flex flex-col items-center ${
               isActive('/cart') ? 'text-primary' : 'text-gray-500'
             }`}
@@ -97,7 +93,7 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
           </button>
           
           <button
-            onClick={() => handleNavigation('/profile')}
+            onClick={() => navigate('/profile')}
             className={`flex flex-col items-center ${
               isActive('/profile') ? 'text-primary' : 'text-gray-500'
             }`}
