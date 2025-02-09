@@ -45,7 +45,7 @@ function App() {
         <AuthProvider>
           <CartProvider>
             <TooltipProvider>
-              <>
+              <div className="max-w-lg mx-auto min-h-screen bg-gray-50">
                 <Toaster />
                 <SonnerToaster />
                 <Routes>
@@ -63,7 +63,7 @@ function App() {
                   <Route path="/admin-orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
                   <Route path="*" element={<Navigate to="/menu" replace />} />
                 </Routes>
-              </>
+              </div>
             </TooltipProvider>
           </CartProvider>
         </AuthProvider>

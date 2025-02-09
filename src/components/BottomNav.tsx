@@ -49,12 +49,12 @@ const BottomNav = ({ onSearch }: BottomNavProps) => {
         </div>
       )}
       
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40 max-w-lg mx-auto">
         <div className="flex justify-around items-center">
           <Link
-            to="/"
+            to="/menu"
             className={`flex flex-col items-center ${
-              isActive('/') ? 'text-primary' : 'text-gray-500'
+              isActive('/menu') ? 'text-primary' : 'text-gray-500'
             }`}
           >
             <Home size={24} />
