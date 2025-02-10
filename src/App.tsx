@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -20,14 +21,13 @@ import AdminRoute from "./components/AdminRoute";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = React.useState(true);
   const queryClient = new QueryClient();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 3000);
