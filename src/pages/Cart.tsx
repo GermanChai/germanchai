@@ -1,16 +1,75 @@
+
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { format, addHours } from "date-fns";
+import { Label } from "@/components/ui/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/components/ui/radio-group";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const [specialRequests, setSpecialRequests] = useState("");
+  const [diningOption, setDiningOption] = useState<"dine-in" | "dine-out">("dine-out");
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [estimatedArrival, setEstimatedArrival] = useState("");
+
+  const { data: addresses } = useQuery({
+    queryKey: ['addresses'],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const handleCheckout = async () => {
     try {
@@ -23,26 +82,23 @@ const Cart = () => {
         navigate('/login');
         return;
       }
-      
-      // First, get user profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('full_name, phone, address')
-        .eq('id', user.id)
-        .single();
 
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        throw new Error('Could not fetch profile data');
-      }
-
-      if (!profileData?.full_name || !profileData?.phone || !profileData?.address) {
+      if (!profile?.full_name || !profile?.phone) {
         toast({
           variant: "destructive",
           title: "Profile Incomplete",
           description: "Please complete your profile before placing an order",
         });
         navigate('/profile');
+        return;
+      }
+
+      if (diningOption === "dine-out" && !selectedAddressId) {
+        toast({
+          variant: "destructive",
+          title: "Address Required",
+          description: "Please select a delivery address",
+        });
         return;
       }
 
@@ -53,17 +109,22 @@ const Cart = () => {
           user_id: user.id,
           total_amount: total,
           status: 'pending',
-          customer_name: profileData.full_name,
-          customer_phone: profileData.phone,
-          customer_address: profileData.address
+          customer_name: profile.full_name,
+          customer_phone: profile.phone,
+          customer_address: diningOption === "dine-out" 
+            ? addresses?.find(a => a.id === selectedAddressId)?.address_line 
+            : null,
+          special_requests: specialRequests,
+          dining_option: diningOption,
+          estimated_arrival_time: diningOption === "dine-in" && estimatedArrival 
+            ? new Date(estimatedArrival).toISOString()
+            : null,
+          delivery_address_id: diningOption === "dine-out" ? selectedAddressId : null
         })
         .select()
         .single();
 
-      if (orderError) {
-        console.error('Order error:', orderError);
-        throw new Error('Failed to create order');
-      }
+      if (orderError) throw orderError;
 
       // Create order items
       const orderItems = items.map(item => ({
@@ -77,10 +138,7 @@ const Cart = () => {
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) {
-        console.error('Order items error:', itemsError);
-        throw new Error('Failed to create order items');
-      }
+      if (itemsError) throw itemsError;
 
       clearCart();
       toast({
@@ -109,6 +167,12 @@ const Cart = () => {
       </div>
     );
   }
+
+  // Generate time slots for the next 12 hours
+  const timeSlots = Array.from({ length: 12 }, (_, i) => {
+    const time = addHours(new Date(), i + 1);
+    return format(time, "yyyy-MM-dd'T'HH:mm");
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -161,6 +225,90 @@ const Cart = () => {
       </div>
       
       <div className="mt-8 p-4 bg-white rounded-lg shadow">
+        <div className="space-y-4 mb-6">
+          <div>
+            <Label>Special Requests</Label>
+            <Textarea
+              placeholder="Any special requests for the chef?"
+              value={specialRequests}
+              onChange={(e) => setSpecialRequests(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label>Dining Option</Label>
+            <RadioGroup
+              value={diningOption}
+              onValueChange={(value: "dine-in" | "dine-out") => setDiningOption(value)}
+              className="mt-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="dine-in" id="dine-in" />
+                <Label htmlFor="dine-in">Dine In</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="dine-out" id="dine-out" />
+                <Label htmlFor="dine-out">Dine Out (Delivery)</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {diningOption === "dine-in" && (
+            <div>
+              <Label>Estimated Arrival Time</Label>
+              <Select
+                value={estimatedArrival}
+                onValueChange={setEstimatedArrival}
+              >
+                <SelectTrigger className="w-full mt-1">
+                  <SelectValue placeholder="Select arrival time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeSlots.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {format(new Date(time), 'h:mm a')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {diningOption === "dine-out" && (
+            <div>
+              <Label>Delivery Address</Label>
+              {addresses?.length === 0 ? (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-2">No addresses found</p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/profile')}
+                  >
+                    Add Address
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={selectedAddressId}
+                  onValueChange={setSelectedAddressId}
+                >
+                  <SelectTrigger className="w-full mt-1">
+                    <SelectValue placeholder="Select delivery address" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {addresses?.map((address) => (
+                      <SelectItem key={address.id} value={address.id}>
+                        {address.label} - {address.address_line}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="flex justify-between items-center mb-4">
           <span className="font-semibold">Total:</span>
           <span className="text-xl font-bold">₹{total.toFixed(2)}</span>

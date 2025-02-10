@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -27,6 +28,15 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Link } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Info } from "lucide-react";
 
 const AdminOrders = () => {
   const { data: orders, isLoading, error } = useQuery({
@@ -40,7 +50,8 @@ const AdminOrders = () => {
           order_items (
             *,
             menu_items (*)
-          )
+          ),
+          addresses (*)
         `
         )
         .order("created_at", { ascending: false });
@@ -116,11 +127,13 @@ const AdminOrders = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
+              <TableHead>Customer Details</TableHead>
               <TableHead>Items</TableHead>
+              <TableHead>Order Type</TableHead>
               <TableHead>Total Amount</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Details</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -131,9 +144,11 @@ const AdminOrders = () => {
                   <div>
                     <p className="font-medium">{order.customer_name}</p>
                     <p className="text-sm text-gray-500">{order.customer_phone}</p>
-                    <p className="text-sm text-gray-500">
-                      {order.customer_address}
-                    </p>
+                    {order.dining_option === "dine-out" && (
+                      <p className="text-sm text-gray-500">
+                        {order.customer_address}
+                      </p>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -145,6 +160,9 @@ const AdminOrders = () => {
                       </li>
                     ))}
                   </ul>
+                </TableCell>
+                <TableCell>
+                  <span className="capitalize">{order.dining_option}</span>
                 </TableCell>
                 <TableCell>₹{order.total_amount}</TableCell>
                 <TableCell>
@@ -165,6 +183,59 @@ const AdminOrders = () => {
                 </TableCell>
                 <TableCell>
                   {format(new Date(order.created_at), "PPp")}
+                </TableCell>
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Order Details</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-semibold mb-2">Dining Option</h3>
+                          <p className="capitalize">{order.dining_option}</p>
+                        </div>
+                        
+                        {order.dining_option === "dine-in" && order.estimated_arrival_time && (
+                          <div>
+                            <h3 className="font-semibold mb-2">Estimated Arrival</h3>
+                            <p>{format(new Date(order.estimated_arrival_time), "PPp")}</p>
+                          </div>
+                        )}
+
+                        {order.dining_option === "dine-out" && (
+                          <div>
+                            <h3 className="font-semibold mb-2">Delivery Address</h3>
+                            <p>{order.customer_address}</p>
+                          </div>
+                        )}
+
+                        {order.special_requests && (
+                          <div>
+                            <h3 className="font-semibold mb-2">Special Requests</h3>
+                            <p>{order.special_requests}</p>
+                          </div>
+                        )}
+
+                        <div>
+                          <h3 className="font-semibold mb-2">Items</h3>
+                          <ul className="list-disc list-inside">
+                            {order.order_items.map((item: any) => (
+                              <li key={item.id}>
+                                {item.quantity}x {item.menu_items.name} - ₹
+                                {item.price_at_time}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </TableCell>
               </TableRow>
             ))}

@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address_line: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          label: string
+          user_id: string
+        }
+        Insert: {
+          address_line: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          label: string
+          user_id: string
+        }
+        Update: {
+          address_line?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          label?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           available: boolean | null
@@ -87,7 +122,11 @@ export type Database = {
           customer_address: string | null
           customer_name: string | null
           customer_phone: string | null
+          delivery_address_id: string | null
+          dining_option: string
+          estimated_arrival_time: string | null
           id: string
+          special_requests: string | null
           status: string
           total_amount: number
           user_id: string
@@ -97,7 +136,11 @@ export type Database = {
           customer_address?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          delivery_address_id?: string | null
+          dining_option?: string
+          estimated_arrival_time?: string | null
           id?: string
+          special_requests?: string | null
           status?: string
           total_amount: number
           user_id: string
@@ -107,12 +150,24 @@ export type Database = {
           customer_address?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          delivery_address_id?: string | null
+          dining_option?: string
+          estimated_arrival_time?: string | null
           id?: string
+          special_requests?: string | null
           status?: string
           total_amount?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_delivery_address_id_fkey"
+            columns: ["delivery_address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
