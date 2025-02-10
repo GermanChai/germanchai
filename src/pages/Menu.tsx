@@ -4,15 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Tables } from '@/integrations/supabase/types';
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Loader2, ShoppingCart, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 type MenuItem = Tables<'menu_items'>;
 
 const Menu = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
   
   const { data: menuItems, isLoading } = useQuery({
     queryKey: ['menu-items'],
@@ -36,6 +38,11 @@ const Menu = () => {
     });
   };
 
+  const filteredMenuItems = menuItems?.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -44,12 +51,29 @@ const Menu = () => {
     );
   }
 
-  const categories = Array.from(new Set(menuItems?.map(item => item.category)));
+  const categories = Array.from(new Set(filteredMenuItems?.map(item => item.category)));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       <div className="pt-6 px-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Our Menu</h1>
+        {/* Title with drop shadow */}
+        <h1 className="text-4xl font-bold text-[#1A1F2C] whitespace-pre-line absolute left-12 top-32 drop-shadow-lg">
+          Delicious{"\n"}food for you
+        </h1>
+        
+        {/* Search bar with rounded corners and drop shadow */}
+        <div className="relative mt-28 mb-12 max-w-md mx-auto">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-[#F1F1F1] border border-[#888888] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#555555] h-5 w-5" />
+          </div>
+        </div>
         
         <div className="space-y-12">
           {categories.map((category) => (
@@ -61,7 +85,7 @@ const Menu = () => {
               <div className="relative">
                 <div className="overflow-x-auto scrollbar-none">
                   <div className="flex space-x-6 px-4 pb-4">
-                    {menuItems
+                    {filteredMenuItems
                       ?.filter(item => item.category === category)
                       .map((item, index) => (
                         <motion.div
@@ -120,7 +144,6 @@ const Menu = () => {
                   </div>
                 </div>
                 
-                {/* Show a peek of the next item */}
                 <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white pointer-events-none" />
               </div>
             </div>
