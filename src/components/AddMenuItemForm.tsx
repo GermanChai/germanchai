@@ -14,7 +14,7 @@ interface NewItem {
 }
 
 interface AddMenuItemFormProps {
-  onSubmit: (e: React.FormEvent, imageFile: File | null) => void;
+  onSubmit: (e: React.FormEvent, newItem: NewItem, imageFile: File | null) => void;
   isUploading: boolean;
 }
 
@@ -35,7 +35,7 @@ const AddMenuItemForm = ({ onSubmit, isUploading }: AddMenuItemFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(e, imageFile);
+    onSubmit(e, newItem, imageFile);
     setNewItem({
       name: "",
       description: "",
@@ -50,26 +50,39 @@ const AddMenuItemForm = ({ onSubmit, isUploading }: AddMenuItemFormProps) => {
       <h2 className="text-xl font-semibold mb-4">Add Menu Item</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            placeholder="Name"
-            value={newItem.name}
-            onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-            required
-          />
-          <Input
-            placeholder="Category"
-            value={newItem.category}
-            onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-            required
-          />
-          <Input
-            placeholder="Price"
-            type="number"
-            step="0.01"
-            value={newItem.price}
-            onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-            required
-          />
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              placeholder="Item name"
+              value={newItem.name}
+              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Input
+              id="category"
+              placeholder="Category"
+              value={newItem.category}
+              onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price">Price</Label>
+            <Input
+              id="price"
+              placeholder="Price"
+              type="number"
+              step="0.01"
+              min="0"
+              value={newItem.price}
+              onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="image">Menu Item Image</Label>
             <Input
@@ -81,12 +94,16 @@ const AddMenuItemForm = ({ onSubmit, isUploading }: AddMenuItemFormProps) => {
             />
           </div>
         </div>
-        <Textarea
-          placeholder="Description"
-          value={newItem.description}
-          onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-          required
-        />
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            placeholder="Item description"
+            value={newItem.description}
+            onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+            required
+          />
+        </div>
         <Button type="submit" className="w-full" disabled={isUploading}>
           {isUploading ? (
             <>

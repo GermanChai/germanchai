@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -78,21 +77,24 @@ const AdminDashboard = () => {
     return data.publicUrl;
   };
 
-  const handleAddItem = async (e: React.FormEvent, imageFile: File | null) => {
+  const handleAddItem = async (
+    e: React.FormEvent,
+    newItem: { name: string; description: string; price: string; category: string },
+    imageFile: File | null
+  ) => {
     e.preventDefault();
     setIsUploading(true);
     try {
-      const formData = new FormData(e.target as HTMLFormElement);
       let imageUrl = null;
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
       }
 
       const menuItem = {
-        name: String(formData.get('name')),
-        description: String(formData.get('description')),
-        price: parseFloat(String(formData.get('price'))),
-        category: String(formData.get('category')),
+        name: newItem.name,
+        description: newItem.description,
+        price: parseFloat(newItem.price),
+        category: newItem.category,
         image_url: imageUrl,
       };
 
@@ -106,10 +108,6 @@ const AdminDashboard = () => {
         title: "Success",
         description: "Menu item added successfully",
       });
-      
-      if (e.target instanceof HTMLFormElement) {
-        e.target.reset();
-      }
       
       refetchMenu();
     } catch (error: any) {
