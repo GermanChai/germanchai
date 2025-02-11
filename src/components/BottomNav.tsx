@@ -10,13 +10,13 @@ const BottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-safe-area-inset-bottom z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#A0C878] pb-safe-area-inset-bottom z-50">
       <div className="max-w-screen-xl mx-auto px-4 py-3">
         <div className="flex justify-around items-center">
           <Link
             to="/"
             className={`flex flex-col items-center space-y-1 ${
-              isActive('/') ? 'text-[#FF5A5F]' : 'text-gray-400'
+              isActive('/') ? 'text-[#27667B]' : 'text-gray-400'
             }`}
           >
             <Home size={24} strokeWidth={2} />
@@ -26,7 +26,7 @@ const BottomNav = () => {
           <Link
             to="/cart"
             className={`flex flex-col items-center space-y-1 ${
-              isActive('/cart') ? 'text-[#FF5A5F]' : 'text-gray-400'
+              isActive('/cart') ? 'text-[#27667B]' : 'text-gray-400'
             }`}
           >
             <ShoppingCart size={24} strokeWidth={2} />
@@ -36,7 +36,7 @@ const BottomNav = () => {
           <Link
             to="/orders"
             className={`flex flex-col items-center space-y-1 ${
-              isActive('/orders') ? 'text-[#FF5A5F]' : 'text-gray-400'
+              isActive('/orders') ? 'text-[#27667B]' : 'text-gray-400'
             }`}
           >
             <ClipboardList size={24} strokeWidth={2} />
@@ -46,7 +46,7 @@ const BottomNav = () => {
           <Link
             to="/profile"
             className={`flex flex-col items-center space-y-1 ${
-              isActive('/profile') ? 'text-[#FF5A5F]' : 'text-gray-400'
+              isActive('/profile') ? 'text-[#27667B]' : 'text-gray-400'
             }`}
           >
             <User size={24} strokeWidth={2} />

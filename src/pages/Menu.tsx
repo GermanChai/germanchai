@@ -46,8 +46,8 @@ const Menu = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF5A5F]" />
+      <div className="flex justify-center items-center min-h-screen bg-[#DDEB9D]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#27667B]" />
       </div>
     );
   }
@@ -55,11 +55,11 @@ const Menu = () => {
   const categories = Array.from(new Set(filteredMenuItems?.map(item => item.category)));
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      <div className="sticky top-0 z-10 bg-white shadow-sm">
+    <div className="min-h-screen bg-[#DDEB9D] pb-24">
+      <div className="sticky top-0 z-10 bg-[#DDEB9D] shadow-sm">
         <div className="pt-6 px-4 pb-4 max-w-7xl mx-auto">
           {/* Enhanced Title */}
-          <h1 className="text-[32px] font-bold text-[#484848] mb-6 leading-tight">
+          <h1 className="text-[32px] font-bold text-[#143D60] mb-6 leading-tight">
             What would you like{"\n"}to eat today?
           </h1>
           
@@ -70,11 +70,11 @@ const Menu = () => {
               placeholder="Search menu items"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-full 
-                         shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF5A5F] focus:border-transparent 
-                         text-[#484848] placeholder-gray-400 text-base"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-[#A0C878] rounded-full 
+                         shadow-sm focus:outline-none focus:ring-2 focus:ring-[#27667B] focus:border-transparent 
+                         text-[#143D60] placeholder-[#27667B]/50 text-base"
             />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#27667B] h-5 w-5" />
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@ const Menu = () => {
       <div className="px-4 space-y-8 max-w-7xl mx-auto">
         {categories.map((category) => (
           <div key={category} className="space-y-4">
-            <h2 className="text-xl font-bold text-[#484848] sticky top-28 bg-white py-2 z-10">
+            <h2 className="text-xl font-bold text-[#143D60] sticky top-28 bg-[#DDEB9D] py-2 z-10">
               {category}
             </h2>
             
@@ -99,8 +99,8 @@ const Menu = () => {
                     className="group cursor-pointer"
                     onClick={() => handleAddToCart(item)}
                   >
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden 
-                                  hover:shadow-md transition-all duration-300 hover:border-[#FF5A5F]/20">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#A0C878] overflow-hidden 
+                                  hover:shadow-md transition-all duration-300 hover:border-[#27667B]">
                       {item.image_url && (
                         <div className="relative h-48 w-full">
                           <img
@@ -109,7 +109,7 @@ const Menu = () => {
                             className="w-full h-full object-cover"
                           />
                           {!item.available && (
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                            <div className="absolute inset-0 bg-[#143D60]/60 backdrop-blur-sm flex items-center justify-center">
                               <span className="text-white text-sm font-medium px-3 py-1 rounded-full bg-red-500/90">
                                 Unavailable
                               </span>
@@ -120,11 +120,11 @@ const Menu = () => {
                       
                       <div className="p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-medium text-[#484848] group-hover:text-[#FF5A5F] 
+                          <h3 className="font-medium text-[#143D60] group-hover:text-[#27667B] 
                                        transition-colors line-clamp-2 flex-1 text-lg">
                             {item.name}
                           </h3>
-                          <span className="text-[#FF5A5F] font-bold ml-2">
+                          <span className="text-[#27667B] font-bold ml-2">
                             ₹{item.price.toFixed(2)}
                           </span>
                         </div>
@@ -132,7 +132,7 @@ const Menu = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full mt-2 border-[#FF5A5F] text-[#FF5A5F] hover:bg-[#FF5A5F] hover:text-white
+                          className="w-full mt-2 border-[#27667B] text-[#27667B] hover:bg-[#27667B] hover:text-white
                                    transition-colors duration-300"
                           onClick={(e) => {
                             e.stopPropagation();
