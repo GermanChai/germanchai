@@ -56,17 +56,17 @@ const Menu = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       <div className="pt-6 px-4">
-        {/* Title with drop shadow */}
+        {/* Title with enhanced styling */}
         <h1 className="text-4xl font-bold text-[#1A1F2C] whitespace-pre-line absolute left-12 top-32 drop-shadow-lg">
           Delicious{"\n"}food for you
         </h1>
         
-        {/* Search bar with rounded corners and drop shadow */}
+        {/* Uber Eats style search bar */}
         <div className="relative mt-28 mb-12 max-w-md mx-auto">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search for food or cuisines"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-[#F1F1F1] border border-[#888888] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -75,6 +75,7 @@ const Menu = () => {
           </div>
         </div>
         
+        {/* Categories and Menu Items */}
         <div className="space-y-12">
           {categories.map((category) => (
             <div key={category} className="space-y-4">
@@ -82,6 +83,7 @@ const Menu = () => {
                 {category}
               </h2>
               
+              {/* Horizontal scrollable menu items */}
               <div className="relative">
                 <div className="overflow-x-auto scrollbar-none">
                   <div className="flex space-x-6 px-4 pb-4">
@@ -96,7 +98,7 @@ const Menu = () => {
                           className="relative flex-none w-36"
                         >
                           <div 
-                            className="relative group"
+                            className="relative group cursor-pointer"
                             onClick={() => handleAddToCart(item)}
                           >
                             {item.image_url && (
@@ -144,6 +146,7 @@ const Menu = () => {
                   </div>
                 </div>
                 
+                {/* Gradient fade effect for scroll indication */}
                 <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white pointer-events-none" />
               </div>
             </div>
