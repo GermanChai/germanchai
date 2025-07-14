@@ -57,7 +57,6 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
-    address: '',
   });
 
   const addAddressMutation = useMutation({
@@ -118,7 +117,6 @@ const Profile = () => {
     setFormData({
       full_name: profile?.full_name || '',
       phone: profile?.phone || '',
-      address: profile?.address || '',
     });
     setIsEditing(true);
   };
