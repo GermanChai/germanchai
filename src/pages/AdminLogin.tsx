@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,16 +27,23 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user is trying to access admin panel with non-admin email
+    if (email !== 'admin@restaurant.com') {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "This login is reserved for administrators only.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       await login(email, password);
-      if (email !== 'admin@restaurant.com') {
-        toast({
-          variant: "destructive",
-          title: "Access Denied",
-          description: "This login is reserved for administrators only.",
-        });
-      }
+      // If login succeeds, navigation will be handled by AuthContext
+    } catch (error) {
+      console.error('Admin login error:', error);
     } finally {
       setIsLoading(false);
     }
