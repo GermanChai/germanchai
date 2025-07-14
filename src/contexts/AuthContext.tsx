@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
@@ -26,6 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check active session and handle initial authentication state
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -35,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await supabase.auth.signOut();
           navigate('/login');
         } else {
+          console.log('Initial session:', session?.user?.email || 'No session');
           setUser(session?.user ?? null);
         }
       } catch (error) {
@@ -51,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
+      console.log('Auth state changed:', event, 'User email:', session?.user?.email || 'No user');
       setUser(session?.user ?? null);
       setLoading(false);
       
@@ -65,9 +68,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         case 'SIGNED_IN':
           localStorage.removeItem('cart');
           const email = session?.user?.email;
+          console.log('User signed in with email:', email);
           if (email === 'admin@restaurant.com') {
+            console.log('Redirecting to admin dashboard');
             navigate('/admin-dashboard');
           } else {
+            console.log('Redirecting to menu');
             navigate('/menu');
           }
           break;
@@ -91,10 +97,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Attempting login with email:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      console.log('Login response:', { user: data.user?.email, error: error?.message });
 
       if (error) throw error;
 

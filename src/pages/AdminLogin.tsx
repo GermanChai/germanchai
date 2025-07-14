@@ -15,6 +15,8 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  console.log('AdminLogin render - user:', user?.email, 'isAdmin:', isAdmin);
+
   // Redirect if already logged in as admin
   if (user && isAdmin) {
     return <Navigate to="/admin-dashboard" replace />;
@@ -28,8 +30,11 @@ const AdminLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitted with email:', email, 'password length:', password.length);
+    
     // Check if user is trying to access admin panel with non-admin email
     if (email !== 'admin@restaurant.com') {
+      console.log('Non-admin email attempted:', email);
       toast({
         variant: "destructive",
         title: "Access Denied",
@@ -40,7 +45,9 @@ const AdminLogin = () => {
 
     setIsLoading(true);
     try {
+      console.log('Calling login function...');
       await login(email, password);
+      console.log('Login function completed successfully');
       // If login succeeds, navigation will be handled by AuthContext
     } catch (error) {
       console.error('Admin login error:', error);
@@ -59,6 +66,9 @@ const AdminLogin = () => {
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to access admin dashboard
+          </p>
+          <p className="mt-2 text-xs text-gray-500">
+            Debug: Use admin@restaurant.com / admin1234
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
