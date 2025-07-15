@@ -4,14 +4,16 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Coffee, ArrowLeft } from 'lucide-react';
+import { Coffee, ArrowLeft, UserPlus } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { createAdminUser } from '@/utils/adminSetup';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, user, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -26,6 +28,34 @@ const AdminLogin = () => {
   if (user && !isAdmin) {
     return <Navigate to="/menu" replace />;
   }
+
+  const handleCreateAdmin = async () => {
+    setIsCreatingAdmin(true);
+    try {
+      const result = await createAdminUser();
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Admin user created successfully! You can now log in.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to create admin user",
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleCreateAdmin:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",  
+        description: "Failed to create admin user",
+      });
+    } finally {
+      setIsCreatingAdmin(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +101,23 @@ const AdminLogin = () => {
             Debug: Use admin@restaurant.com / admin1234
           </p>
         </div>
+
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+          <p className="text-sm text-yellow-800 mb-3">
+            If you're getting "Invalid login credentials", you may need to create the admin user first:
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCreateAdmin}
+            disabled={isCreatingAdmin}
+            className="w-full"
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            {isCreatingAdmin ? 'Creating Admin User...' : 'Create Admin User'}
+          </Button>
+        </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
