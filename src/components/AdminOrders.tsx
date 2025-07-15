@@ -19,14 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { Link } from "react-router-dom";
 import {
   Dialog,
@@ -39,7 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 
 const AdminOrders = () => {
-  const { data: orders, isLoading, error } = useQuery({
+  const { data: orders, isLoading, error, refetch } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: async () => {
       const { data: orders, error } = await supabase
@@ -59,6 +51,8 @@ const AdminOrders = () => {
       if (error) throw error;
       return orders;
     },
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 60 * 1000, // Refetch every minute
   });
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -76,8 +70,10 @@ const AdminOrders = () => {
     } else {
       toast({
         title: "Order status updated",
-        description: `Order ${orderId} status changed to ${newStatus}`,
+        description: `Order status changed to ${newStatus}`,
       });
+      // Refresh the orders list
+      refetch();
     }
   };
 
@@ -102,24 +98,22 @@ const AdminOrders = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <NavigationMenu className="mb-6">
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <Link to="/admin/dashboard">
-              <NavigationMenuLink className="px-4 py-2 hover:bg-accent rounded-md">
-                Dashboard
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link to="/admin/orders">
-              <NavigationMenuLink className="px-4 py-2 hover:bg-accent rounded-md">
-                Orders
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+      <div className="mb-6">
+        <div className="flex space-x-4">
+          <Link 
+            to="/admin-dashboard"
+            className="px-4 py-2 hover:bg-accent rounded-md transition-colors"
+          >
+            Dashboard
+          </Link>
+          <Link 
+            to="/admin/orders"
+            className="px-4 py-2 hover:bg-accent rounded-md transition-colors"
+          >
+            Orders
+          </Link>
+        </div>
+      </div>
 
       <h1 className="text-2xl font-bold mb-6">Orders Management</h1>
       <div className="bg-white rounded-lg shadow overflow-x-auto">

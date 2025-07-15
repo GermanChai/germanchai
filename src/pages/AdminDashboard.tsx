@@ -35,6 +35,7 @@ const AdminDashboard = () => {
       if (error) throw error;
       return data;
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch orders with loading state
@@ -55,6 +56,7 @@ const AdminDashboard = () => {
       if (error) throw error;
       return data;
     },
+    staleTime: 30 * 1000, // 30 seconds
   });
 
   const uploadImage = async (file: File): Promise<string> => {
@@ -169,8 +171,8 @@ const AdminDashboard = () => {
   // Calculate total earnings
   const totalEarnings = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
 
-  // Show loading state while any data is being fetched
-  if (menuLoading || ordersLoading) {
+  // Only show loading when menu items are loading (orders load in background)
+  if (menuLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
