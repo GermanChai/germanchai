@@ -123,10 +123,13 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
+      // Use upsert to insert or update the profile
       const { error } = await supabase
         .from('profiles')
-        .update(formData)
-        .eq('id', user?.id);
+        .upsert({
+          id: user?.id,
+          ...formData
+        });
 
       if (error) throw error;
 
