@@ -114,7 +114,7 @@ const Cart = () => {
           customer_address: diningOption === "dine-out" 
             ? addresses?.find(a => a.id === selectedAddressId)?.address_line 
             : null,
-          special_requests: specialRequests,
+          special_requests: specialRequests.trim() || null,
           dining_option: diningOption,
           estimated_arrival_time: diningOption === "dine-in" && estimatedArrival 
             ? new Date(estimatedArrival).toISOString()
