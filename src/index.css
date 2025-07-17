@@ -5,65 +5,65 @@
 
 @layer base {
   :root {
-    --background: 160 100% 89%;
-    --foreground: 160 20% 20%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 20% 20%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 160 100% 89%;
-    --popover-foreground: 160 20% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 150 30% 65%;
+    --primary: 142 94% 39%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 40% 85%;
-    --secondary-foreground: 160 20% 20%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 160 40% 85%;
-    --muted-foreground: 160 30% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 150 30% 65%;
-    --accent-foreground: 160 20% 20%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 160 40% 85%;
-    --input: 160 40% 85%;
-    --ring: 150 30% 65%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 142 94% 39%;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 160 30% 15%;
-    --foreground: 160 100% 89%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 160 30% 18%;
-    --card-foreground: 160 100% 89%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 160 30% 18%;
-    --popover-foreground: 160 100% 89%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 150 30% 65%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 94% 39%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 160 20% 25%;
-    --secondary-foreground: 160 100% 89%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 160 20% 25%;
-    --muted-foreground: 160 40% 70%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
 
-    --accent: 150 30% 65%;
-    --accent-foreground: 160 30% 15%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 160 100% 89%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 160 20% 25%;
-    --input: 160 20% 25%;
-    --ring: 150 30% 65%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 142 94% 39%;
   }
 }
 
@@ -72,6 +72,15 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+  }
+  
+  /* Uber Eats specific styling */
+  .uber-shadow {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  }
+  
+  .uber-shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
   }
 }

@@ -18,6 +18,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        inter: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -33,7 +37,7 @@ export default {
           foreground: "hsl(var(--secondary-foreground))",
         },
         success: {
-          DEFAULT: "#4caf50",
+          DEFAULT: "#06C167",
           foreground: "#ffffff",
         },
         error: {
